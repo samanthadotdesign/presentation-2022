@@ -7,7 +7,7 @@ const config = {
 			resolve: {
 				alias: {
 					// these are the aliases and paths to them
-					'@assets': resolve('./src/constants'),
+					'@assets': resolve('./src/assets'),
 					'@stores': resolve('./src/stores'),
 					'@components': resolve('./src/components'),
 					'@utils': resolve('./src/utils')
