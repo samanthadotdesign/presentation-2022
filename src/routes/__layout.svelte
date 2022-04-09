@@ -4,13 +4,14 @@
 	import { onMount } from 'svelte';
 
 	/* STORES */
-	import {
+	import layoutStore, {
 		window as windowObj,
 		isLoading,
 		inTransition,
 		globalSlideNum,
 		slidesIndex
 	} from '@stores/layout';
+
 	import { browser } from '$app/env';
 
 	/* ASSETS */
@@ -19,6 +20,11 @@
 	/* LOCAL VARS */
 	let Hammer;
 	let appRef;
+
+	let activeSlidesArray;
+	let preloadSlidesArray;
+
+	let localSlideNum = { slideNum: 0 };
 
 	/* FUNCTIONS */
 	const resizeHandler = (event) => {
@@ -36,12 +42,12 @@
 
 			let finalValue;
 			// finalValue is the next slide position
-			// It will replace $globalSlideNum
+			// It will replace localSlideNum
 
-			if (event.code == 'ArrowLeft' && $globalSlideNum.value > 0) {
-				finalValue = $globalSlideNum.value - 1;
-			} else if (event.code == 'ArrowRight' && $globalSlideNum.value < 25) {
-				finalValue = $globalSlideNum.value + 1;
+			if (event.code == 'ArrowLeft' && $globalSlideNum > 0) {
+				finalValue = $globalSlideNum - 1;
+			} else if (event.code == 'ArrowRight' && $globalSlideNum < 25) {
+				finalValue = $globalSlideNum + 1;
 			} else {
 				$inTransition = false;
 			}
@@ -58,14 +64,18 @@
 	}
 
 	function handleScrollWheel(event) {
+		console.log('CHECKING SCROLL EVENT');
 		event.preventDefault();
+		event.stopPropagation();
+		event.stopImmediatePropagation();
+
 		if ($inTransition == false) {
 			$inTransition = true;
 			let finalValue;
-			if (Math.sign(event.deltaY) == -1 && $globalSlideNum.value > 0) {
-				finalValue = $globalSlideNum.value - 1;
-			} else if (Math.sign(event.deltaY) == 1 && $globalSlideNum.value < 25) {
-				finalValue = $globalSlideNum.value + 1;
+			if (Math.sign(event.deltaY) == -1 && $globalSlideNum > 0) {
+				finalValue = $globalSlideNum - 1;
+			} else if (Math.sign(event.deltaY) == 1 && $globalSlideNum < 25) {
+				finalValue = $globalSlideNum + 1;
 			}
 			const config = {
 				easing: 'easeInOutQuad',
@@ -77,19 +87,24 @@
 
 	// Interpolating changes between slides
 	function smoothUpdate(end, config) {
+		console.log('CHECKING SMOOTH UPDATE', end, config);
 		return anime({
 			// Set target for animation
-			targets: $globalSlideNum,
+			targets: localSlideNum,
 			// Animejs will interpolate the value from 0 to end
-			value: end,
+			slideNum: end,
 			easing: config.easing,
 			duration: config.duration,
 			round: 100,
 			// Set inTransition to false after a little delay
-			complete: () =>
-				setTimeout(() => {
+			update: function () {
+				$globalSlideNum = localSlideNum.slideNum;
+			},
+			complete: () => {
+				return setTimeout(() => {
 					$inTransition = false;
-				}, 100)
+				}, 100);
+			}
 		});
 	}
 
@@ -142,25 +157,25 @@
 					jResult = 'unknown'; // UNKNOWN - what happened?
 			}
 			/* console.log("--00--> Swipe: " + e.direction + " -- Dir is: " + jResult) */
-			if (this.inTransition == false) {
-				this.inTransition = true;
+			if ($inTransition == false) {
+				$inTransition = true;
 				let finalValue;
-				if (jResult == 'left' && this.globalUnits < 25) {
-					finalValue = this.globalUnits + 1;
-				} else if (jResult == 'right' && this.globalUnits > 0) {
-					finalValue = this.globalUnits - 1;
+				if (jResult == 'left' && $globalSlideNum < 25) {
+					finalValue = $globalSlideNum + 1;
+				} else if (jResult == 'right' && $globalSlideNum > 0) {
+					finalValue = $globalSlideNum - 1;
 				} /* else if (jResult == "down") {
             finalValue = 25
           } else if (jResult == "up") {
             finalValue = 1
           } */ else {
-					this.inTransition == false;
+					$inTransition == false;
 				}
 				const config = {
 					easing: 'easeOutQuart',
 					duration: 1500
 				};
-				this.smoothUpdate(finalValue, config);
+				smoothUpdate(finalValue, config);
 			}
 		});
 		appRef.addEventListener(
@@ -179,6 +194,7 @@
 
 			window.addEventListener('resize', resizeHandler);
 			window.addEventListener('keyup', keyPress);
+			//window.addEventListener('wheel', handleScrollWheel, { passive: false });
 
 			setHammer();
 			resizeHandler({ width: window.innerWidth, height: window.innerHeight });
@@ -190,27 +206,34 @@
 	// activeSlides returns the array of slides that will be shown [slide0, slide1]
 	// Depending on configs, it will return >1 value in the array
 	$: activeSlidesArray = Object.keys($slidesIndex).filter((slide) => {
-		return inRange($globalSlideNum.value, $slidesIndex[slide].start, $slidesIndex[slide].end);
+		return inRange($globalSlideNum, $slidesIndex[slide].start, $slidesIndex[slide].end);
 	});
 
 	// Preloads the slides before they're shown
 	$: preloadSlidesArray = Object.keys($slidesIndex).filter((slide) => {
-		return inRange($globalSlideNum.value, $slidesIndex[slide].preload, $slidesIndex[slide].start);
+		return inRange($globalSlideNum, $slidesIndex[slide].preload, $slidesIndex[slide].start);
 	});
+
+	/* setInterval(() => {
+		console.log('CHECKING GLOBAL ON INTERVAL', $globalSlideNum);
+	}, 500); */
 </script>
 
 <div
+	on:mousewheel={handleScrollWheel}
 	bind:this={appRef}
 	class="w-screen h-screen fixed overflow-hidden"
-	on:mousewheel={handleScrollWheel}
 >
-	{#each activeSlidesArray as slide}
-		<!-- <svelte:component this={slide} class="absolute" /> -->
-		<div class={`absolute w-screen h-screen flex justify-center items-center z-2`}>{slide}</div>
-	{/each}
+	{#key $globalSlideNum}
+		<h1>{$globalSlideNum}</h1>
+		{#each activeSlidesArray as slide}
+			<!-- <svelte:component this={slide} class="absolute" /> -->
+			<div class={`absolute w-screen h-screen flex justify-center items-center z-2`}>{slide}</div>
+		{/each}
 
-	{#each preloadSlidesArray as slide}
-		<!-- <svelte:component this={slide} class="invisible" /> -->
-		<div class="absolute w-screen h-screen flex justify-start items-center z-1">{slide}</div>
-	{/each}
+		{#each preloadSlidesArray as slide}
+			<!-- <svelte:component this={slide} class="invisible" /> -->
+			<div class="absolute w-screen h-screen flex justify-start items-center z-1">{slide}</div>
+		{/each}
+	{/key}
 </div>
