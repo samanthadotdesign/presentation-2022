@@ -7,8 +7,7 @@ export default {
 		end: 9.5,
 		contentLength: 2
 	}, */
-
-	slide0: {
+	Slide00: {
 		preload: 0,
 		start: 0,
 		end: 1,
@@ -17,7 +16,7 @@ export default {
 		contentLength: 1,
 		bg: 'green'
 	},
-	slide1: {
+	Slide01: {
 		preload: 0,
 		start: 1,
 		end: 2,
@@ -26,16 +25,16 @@ export default {
 		contentLength: 1,
 		bg: 'red'
 	},
-	slide2: {
+	Slide02: {
 		preload: 1,
 		start: 2,
-		end: 3,
+		end: 5,
 		easeInLenght: 0,
 		easeOutLenght: 0,
-		contentLength: 1,
+		contentLength: 3,
 		bg: 'gray'
 	},
-	slide3: {
+	Slide03: {
 		preload: 2,
 		start: 3,
 		end: 4,

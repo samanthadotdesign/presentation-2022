@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* TYPOGRAPHY */
+@font-face {
+	font-family: 'Editorial New';
+	src: url('/fonts/EditorialNew-Regular.woff') format('woff'),
+		url('/fonts/EditorialNew-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Neue Montreal';
+	src: url('/fonts/NeueMontreal-Regular.woff') format('woff'),
+		url('/fonts/NeueMontreal-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Neue Montreal';
+	src: url('/fonts/NeueMontreal-Bold.woff') format('woff'),
+		url('/fonts/NeueMontreal-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-display: swap;
+}
+
+* {
+	box-sizing: border-box;
+	user-select: none;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0;
+}
+
+h1,
+h1 > *,
+h2 {
+	font-family: 'Editorial New';
+}
+
+h1 {
+	font-size: 64px;
+}
+
+h3,
+h4 {
+	font-family: 'Neue Montreal';
+	font-weight: 700;
+}
+
+p,
+li,
+span {
+	font-family: 'Neue Montreal';
+	font-weight: 400;
+	font-size: 16px;
+}

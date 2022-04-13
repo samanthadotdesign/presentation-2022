@@ -14,6 +14,23 @@
 
 	import { browser } from '$app/env';
 
+	/* SLIDES */
+
+	import Slide00 from '@slides/00.svelte';
+
+	import Slide01 from '@slides/01.svelte';
+
+	import Slide02 from '@slides/02.svelte';
+
+	import Slide03 from '@slides/03.svelte';
+
+	const slideComponents = {
+		Slide00,
+		Slide01,
+		Slide02,
+		Slide03
+	};
+
 	/* ASSETS */
 	import '@assets/globals.css';
 
@@ -64,7 +81,7 @@
 	}
 
 	function handleScrollWheel(event) {
-		console.log('CHECKING SCROLL EVENT');
+		//console.log('CHECKING SCROLL EVENT');
 		event.preventDefault();
 		event.stopPropagation();
 		event.stopImmediatePropagation();
@@ -87,7 +104,6 @@
 
 	// Interpolating changes between slides
 	function smoothUpdate(end, config) {
-		console.log('CHECKING SMOOTH UPDATE', end, config);
 		return anime({
 			// Set target for animation
 			targets: localSlideNum,
@@ -178,6 +194,7 @@
 				smoothUpdate(finalValue, config);
 			}
 		});
+
 		appRef.addEventListener(
 			'touchmove',
 			function (event) {
@@ -225,15 +242,15 @@
 	class="w-screen h-screen fixed overflow-hidden"
 >
 	{#key $globalSlideNum}
-		<h1>{$globalSlideNum}</h1>
+		<h1 class="absolute top-0 left-0 z-[60]">{$globalSlideNum}</h1>
 		{#each activeSlidesArray as slide}
-			<!-- <svelte:component this={slide} class="absolute" /> -->
-			<div class={`absolute w-screen h-screen flex justify-center items-center z-2`}>{slide}</div>
+			<svelte:component this={slideComponents[slide]} class="absolute top-0 left-0" />
+			<!-- <div class={`absolute w-screen h-screen flex justify-center items-center z-2`}>{slide}</div> -->
 		{/each}
 
 		{#each preloadSlidesArray as slide}
-			<!-- <svelte:component this={slide} class="invisible" /> -->
-			<div class="absolute w-screen h-screen flex justify-start items-center z-1">{slide}</div>
+			<svelte:component this={slideComponents[slide]} class="invisible" />
+			<!-- <div class="absolute w-screen h-screen flex justify-start items-center z-1">{slide}</div> -->
 		{/each}
 	{/key}
 </div>

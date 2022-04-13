@@ -10,7 +10,8 @@ const config = {
 					'@assets': resolve('./src/assets'),
 					'@stores': resolve('./src/stores'),
 					'@components': resolve('./src/components'),
-					'@utils': resolve('./src/utils')
+					'@utils': resolve('./src/utils'),
+					'@slides': resolve('./src/slides')
 				}
 			}
 		},
